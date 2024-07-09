@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hoon's Wallpaper Generators - Gradient Bars</title>
+  <title>Hoon's Wallpaper Generators - Gradient</title>
   <link rel="stylesheet" href="wallpaper-generator2.css">
 </head>
 
@@ -12,7 +12,7 @@
   <div id="app-container">
     <div class="row-container">
       <div id="logo">
-        Hoon's Wallpaper Generators - Gradient Bars
+        Hoon's Wallpaper Generators - Gradient
       </div>
       <div id="header-controls">
         <button id="downloadsvg">Download SVG</button>
@@ -28,11 +28,11 @@
 
         Color 2: <br />
         <input type="color" id="color2" value="#2eb28b" /><br />
+        
+        Angle: <br />
+        <input type="range" id="angle" value="315" min="0" max="360" step="45" /><br />
 
-        Color 3: <br />
-        <input type="color" id="color3" value="#fb6413" /><br />
-
-        Steps: <br />
+        <!-- Steps: <br />
         <input type="range" id="steps" value="5" min="3" max="25" /><br />
 
         variance / amplitude: <br />
@@ -42,12 +42,78 @@
         <input type="range" id="start" value="118" min="-50" max="150" /><br />
 
         end point: <br />
-        <input type="range" id="end" value="107" min="-50" max="150" /><br />
+        <input type="range" id="end" value="107" min="-50" max="150" /><br /> -->
       </div>
     </div>
   </div>
 
   <script>
+    function generate(containerId, inputs) {
+      const container = document.getElementById(containerId);
+      var cvb = container.viewBox.baseVal;
+
+      const color1 = inputs['color1'];
+      const color2 = inputs['color2'];
+      const color3 = inputs['color3'];
+      const angle = parseInt(inputs['angle']);
+      const variance = inputs['variance'];
+      const start = inputs['start'];
+      const end = inputs['end'];
+
+      container.innerHTML = "";
+
+      // Create the SVG element
+      const svgNS = "http://www.w3.org/2000/svg";
+      const svg = container;
+
+      // Calculate the gradient direction based on the angle
+      const angleRad = (angle - 90) * (Math.PI / 180);
+      console.log(`angleRad: ${(angle - 90) * (Math.PI / 180)}`);
+      
+      const x2 = 0.5 + 0.5 * Math.cos(angleRad);
+      const y2 = 0.5 + 0.5 * Math.sin(angleRad);
+      const x1 = 1 - x2;
+      const y1 = 1 - y2;
+
+      console.log(`1: ${x1},${y1} `);
+      console.log(`2: ${x2},${y2} `);
+
+
+      // Create the linear gradient element
+      const linearGradient = document.createElementNS(svgNS, "linearGradient");
+      linearGradient.setAttribute("id", "gradient");
+      // Set the gradient direction
+      linearGradient.setAttribute("x2", `${x1 * 100}%`);
+      linearGradient.setAttribute("y2", `${y1 * 100}%`);
+      linearGradient.setAttribute("x1", `${x2 * 100}%`);
+      linearGradient.setAttribute("y1", `${y2 * 100}%`);
+
+      // Create the stop elements for the gradient
+      const stop1 = document.createElementNS(svgNS, "stop");
+      stop1.setAttribute("offset", "0%");
+      stop1.setAttribute("stop-color", color1);
+
+      const stop2 = document.createElementNS(svgNS, "stop");
+      stop2.setAttribute("offset", "100%");
+      stop2.setAttribute("stop-color", color2);
+
+      // Append the stops to the gradient
+      linearGradient.appendChild(stop1);
+      linearGradient.appendChild(stop2);
+
+      // Append the gradient to the SVG
+      svg.appendChild(linearGradient);
+
+      // Create the rectangle element
+      const rect = document.createElementNS(svgNS, "rect");
+      rect.setAttribute("width", "100%");
+      rect.setAttribute("height", "100%");
+      rect.setAttribute("fill", "url(#gradient)");
+
+      // Append the rectangle to the SVG
+      svg.appendChild(rect);
+    }
+
     function init() {
       const inputs = Array.from(document.getElementsByTagName("input"));
       inputs.forEach(function (input) {
@@ -89,31 +155,6 @@
       generate("svg-container", input_array);
     }
 
-    function generate(containerId, inputs) {
-      const container = document.getElementById(containerId);
-      var cvb = container.viewBox.baseVal;
-
-      const fgColor = inputs['color1'];
-      const fgColor2 = inputs['color2'];
-      const bgColor = inputs['color3'];
-      const steps = inputs['steps'];
-      const variance = inputs['variance'];
-      const start = inputs['start'];
-      const end = inputs['end'];
-
-      container.innerHTML = "";
-
-      // create background
-      const bgrect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-      bgrect.setAttribute("width", cvb.width);
-      bgrect.setAttribute("height", cvb.height);
-      bgrect.setAttribute("fill", bgColor);
-      container.appendChild(bgrect);
-
-
-
-      // container.appendChild(c);
-    }
 
     function getRandomInt(min, max) {
       min = Math.ceil(min);
